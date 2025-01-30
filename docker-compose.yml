@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+  backend:
+    build: .
+    container_name: backend
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --log-level ${LOG_LEVEL:-info} --access-logfile - --error-logfile -
+    volumes:
+      - .:/app/backend
+      - ./static:/app/backend/static
+      - ./media_volume:/app/backend/media
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14.0-alpine
+    container_name: db
+    restart: always
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=library
+      - POSTGRES_USER=library_db_admin
+      - POSTGRES_PASSWORD=library.uz@312
+    ports:
+      - "5432:5432"
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - ./static:/app/backend/static
+      - ./media_volume:/app/backend/media
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
