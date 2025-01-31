@@ -21,7 +21,7 @@ class ListCreateAuthorView(generics.ListCreateAPIView):
 
 
 class ListCreateBookView(generics.ListCreateAPIView):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().select_related("genre", "author")
     pagination_class = CustomPagination
 
     create_serializer_class = CreateUpdateBookSerializer
@@ -45,7 +45,7 @@ class ListCreateBookView(generics.ListCreateAPIView):
 
 
 class RetrieveUpdateDestroyBookView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().select_related("genre", "author")
     pagination_class = CustomPagination
 
     create_serializer_class = CreateUpdateBookSerializer

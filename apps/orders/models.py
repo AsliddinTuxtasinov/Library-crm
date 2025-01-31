@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.db import models
 from django.utils import timezone
@@ -17,18 +18,20 @@ class Order(BaseModel):
     fine = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        """ Kitob bron qilingan bo‘lsa, avtomatik mavjudlikni o‘zgartirish """
-        if not self.pk:
+        """ Yangi obyekt yaratishda kitobni mavjud emas deb belgilash """
+        if self._state.adding:  # Yangi obyekt yaratilyaptimi?
             self.book.available = False
             self.book.save()
+
         super().save(*args, **kwargs)
 
-    def calculate_fine(self,):
+    def calculate_fine(self):
         """ Agar muddati o‘tgan bo‘lsa, jarima hisoblash """
         if self.return_date and self.return_date > self.due_date:
             overdue_days = (self.return_date - self.due_date).days
-            return round(self.book.daily_price * 0.01 * overdue_days, 2)
-        return 0
+            fine_per_day = self.book.daily_price * Decimal("0.01")
+            return fine_per_day * overdue_days
+        return Decimal("0")
 
     def mark_as_returned(self):
         """ Kitob qaytarilganda jarima hisoblab, mavjudlikni yangilash """
@@ -48,9 +51,9 @@ class Order(BaseModel):
         verbose_name_plural = 'Orders'
 
 
-class Reservation(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reservations')
+class Booked(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booked')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='booked')
     reserved_at = models.DateTimeField(auto_now_add=True)
 
     def is_expired(self):
@@ -65,7 +68,7 @@ class Reservation(BaseModel):
 
         super().save(*args, **kwargs)
 
-    def cancel_reservation(self):
+    def cancel_booked(self):
         """ Agar foydalanuvchi kitobni olib ketmasa, bronni bekor qilish """
         if self.is_expired():
             self.book.available = True
@@ -76,6 +79,6 @@ class Reservation(BaseModel):
         return f"{self.user.full_name} → {self.book.title} (Reserved on {self.reserved_at.date()})"
 
     class Meta:
-        db_table = 'reservations'
-        verbose_name = 'Reservation'
-        verbose_name_plural = 'Reservations'
+        db_table = 'booked'
+        verbose_name = 'Booked'
+        verbose_name_plural = 'Booked'

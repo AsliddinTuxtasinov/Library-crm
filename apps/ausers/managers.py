@@ -2,6 +2,8 @@ import re
 
 from django.contrib.auth.base_user import BaseUserManager
 
+from apps.ausers.enums import UserRolesChoices
+
 
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
@@ -23,8 +25,9 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(phone_number=phone_number, password=password, **extra_fields)
 
     def create_superuser(self, phone_number, password, **extra_fields):
-        extra_fields['is_staff'] = True
-        extra_fields['is_superuser'] = True
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('user_roles', UserRolesChoices.ADMIN)
         return self._create_user(phone_number=phone_number, password=password, **extra_fields)
 
     @classmethod

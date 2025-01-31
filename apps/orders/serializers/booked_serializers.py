@@ -2,12 +2,12 @@ from rest_framework import serializers
 
 from apps.ausers.serializers import UserDetailSerializer
 from apps.books.serializers import BookSerializer
-from apps.orders.models import Reservation
+from apps.orders.models import Booked
 
 
 class CreateBookedSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Reservation
+        model = Booked
         fields = ["id", "created_time", "user", "book", "reserved_at"]
         read_only_fields = ["id", "created_time", "user"]
 

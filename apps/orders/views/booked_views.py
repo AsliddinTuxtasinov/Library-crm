@@ -1,8 +1,8 @@
-from rest_framework import views, generics
+from rest_framework import generics
 
 from apps.ausers.enums import UserRolesChoices
 from apps.ausers.permissions import UserPermission, UserAndOperatorPermission
-from apps.orders.models import Reservation
+from apps.orders.models import Booked
 from apps.orders.serializers import CreateBookedSerializer, BookedSerializer
 from core.base.utils import CustomPagination
 
@@ -16,7 +16,7 @@ class CreateBookedView(generics.CreateAPIView):
 
 
 class ListBookedView(generics.ListAPIView):
-    queryset = Reservation.objects.select_related("book", "user").all()
+    queryset = Booked.objects.select_related("book", "user").all()
     permission_classes = [UserAndOperatorPermission]
     serializer_class = BookedSerializer
     pagination_class = CustomPagination

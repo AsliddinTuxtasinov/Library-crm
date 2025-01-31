@@ -10,7 +10,6 @@ class GetUserDetailView(views.APIView):
     def get(self, request, *args, **kwargs):
 
         serializer = UserDetailSerializer(request.user)
-        # serializer.is_valid(raise_exception=True)
         return response.Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
