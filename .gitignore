@@ -374,3 +374,4 @@ pyrightconfig.json
 media_volume/
 db_data/
 library
+redis_data/

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 GLOBAL_APPS = [
     # thirty-part packages
     "drf_yasg",
+    "django_celery_beat",
 ]
 LOCAL_APPS = [
     "apps.ausers",
@@ -171,12 +172,18 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Asia/Tashkent"
 
 USE_I18N = True
 
 USE_TZ = True
 
+# celery configurations
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_REDIS_URL", "redis://redis:6379/0")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_REDIS_URL", "redis://redis:6379/0")
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+CELERY_TIMEZONE = TIME_ZONE
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
